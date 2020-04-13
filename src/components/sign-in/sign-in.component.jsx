@@ -5,7 +5,11 @@ import CustomButton from '../custom-button/custom-button.component';
 
 import { auth, signInWithGoogle } from '../../firebase/firebase.utils';
 
-import './sign-in.styles.scss';
+import {
+  SignInContainer,
+  SignInTitle,
+  ButtonsBarContainer,
+} from './sign-in.styles';
 
 class SignIn extends Component {
   constructor(props) {
@@ -13,11 +17,11 @@ class SignIn extends Component {
 
     this.state = {
       email: '',
-      password: ''
+      password: '',
     };
   }
 
-  handleSubmit = async event => {
+  handleSubmit = async (event) => {
     event.preventDefault();
 
     const { email, password } = this.state;
@@ -30,15 +34,15 @@ class SignIn extends Component {
     }
   };
 
-  handleChange = event => {
+  handleChange = (event) => {
     const { name, value } = event.target;
     this.setState({ [name]: value });
   };
 
   render() {
     return (
-      <div className='sign-in'>
-        <h2>I already have an account</h2>
+      <SignInContainer>
+        <SignInTitle>I already have an account</SignInTitle>
         <span>Sign in with your email and password.</span>
 
         <form onSubmit={this.handleSubmit}>
@@ -58,14 +62,14 @@ class SignIn extends Component {
             label='Password'
             required
           />
-          <div className='buttons'>
+          <ButtonsBarContainer>
             <CustomButton type='submit'>SIGN IN</CustomButton>
             <CustomButton onClick={signInWithGoogle} isGoogleSignIn>
               SIGN IN WITH GOOGLE
             </CustomButton>
-          </div>
+          </ButtonsBarContainer>
         </form>
-      </div>
+      </SignInContainer>
     );
   }
 }
