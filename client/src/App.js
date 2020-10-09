@@ -1,10 +1,6 @@
 import React, { useEffect } from 'react';
-import { Route, Switch, Redirect } from 'react-router-dom';
-import { connect } from 'react-redux';
-
-import { createStructuredSelector } from 'reselect';
-import { selectCurrentUser } from './redux/user/user.selectors';
-import { checkUserSession } from './redux/user/user.actions';
+import { Switch, Route, Redirect } from 'react-router-dom';
+import { useMutation, useQuery } from 'react-apollo';
 
 import HomePage from './pages/homepage/homepage.component';
 import ShopPage from './pages/shop/shop.component';
@@ -13,12 +9,42 @@ import CheckoutPage from './pages/checkout/checkout.component';
 
 import Header from './components/header/header.component';
 
+import { auth, createUserProfileDocument } from './firebase/firebase.utils';
+
+import {
+  GET_CURRENT_USER,
+  SET_CURRENT_USER
+} from './graphql/queries/user.queries';
+
 import './App.css';
 
-const App = ({ checkUserSession, currentUser }) => {
+const App = () => {
+  const {
+    data: { currentUser }
+  } = useQuery(GET_CURRENT_USER);
+
+  const [setCurrentUser] = useMutation(SET_CURRENT_USER);
+
   useEffect(() => {
-    checkUserSession();
-  }, [checkUserSession]);
+    const unsubscribeFromAuth = auth.onAuthStateChanged(async userAuth => {
+      if (userAuth) {
+        const userRef = await createUserProfileDocument(userAuth);
+
+        userRef.onSnapshot(snapshot =>
+          setCurrentUser({
+            variables: {
+              user: {
+                id: snapshot.id,
+                ...snapshot.data()
+              }
+            }
+          })
+        );
+      } else setCurrentUser({ variables: { user: userAuth } });
+    });
+
+    return unsubscribeFromAuth;
+  }, [setCurrentUser, currentUser]);
 
   return (
     <div>
@@ -39,12 +65,4 @@ const App = ({ checkUserSession, currentUser }) => {
   );
 };
 
-const mapStateToProps = createStructuredSelector({
-  currentUser: selectCurrentUser
-});
-
-const mapDispatchToProps = dispatch => ({
-  checkUserSession: () => dispatch(checkUserSession())
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(App);
+export default App;

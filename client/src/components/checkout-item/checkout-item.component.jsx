@@ -1,46 +1,53 @@
 import React from 'react';
-import { connect } from 'react-redux';
+import { useMutation } from 'react-apollo';
 
 import {
-  addItem,
-  removeItem,
-  clearItemFromCart,
-} from '../../redux/cart/cart.actions';
+  ADD_ITEM_TO_CART,
+  REMOVE_ITEM_FROM_CART,
+  CLEAR_ITEM_FROM_CART
+} from '../../graphql/queries/cart.queries';
 
-import {
-  CheckoutItemContainer,
-  ImageContainer,
-  TextContainer,
-  QuantityContainer,
-  RemoveButtonContainer,
-} from './checkout-item.styles';
+import './checkout-item.styles.scss';
 
-const CheckoutItem = ({ cartItem, addItem, removeItem, clearItem }) => {
-  const { imageUrl, name, quantity, price } = cartItem;
+const CheckoutItem = ({ cartItem }) => {
+  const { name, imageUrl, price, quantity } = cartItem;
+
+  const [addItem] = useMutation(ADD_ITEM_TO_CART);
+
+  const [removeItem] = useMutation(REMOVE_ITEM_FROM_CART);
+
+  const [clearItem] = useMutation(CLEAR_ITEM_FROM_CART);
 
   return (
-    <CheckoutItemContainer>
-      <ImageContainer>
+    <div className='checkout-item'>
+      <div className='image-container'>
         <img src={imageUrl} alt='item' />
-      </ImageContainer>
-      <TextContainer>{name}</TextContainer>
-      <QuantityContainer>
-        <div onClick={() => removeItem(cartItem)}>&#10094;</div>
-        <span>{quantity}</span>
-        <div onClick={() => addItem(cartItem)}>&#10095;</div>
-      </QuantityContainer>
-      <TextContainer>{price}</TextContainer>
-      <RemoveButtonContainer onClick={() => clearItem(cartItem)}>
+      </div>
+      <span className='name'>{name}</span>
+      <span className='quantity'>
+        <div
+          className='arrow'
+          onClick={() => removeItem({ variables: { item: cartItem } })}
+        >
+          &#10094;
+        </div>
+        <span className='value'>{quantity}</span>
+        <div
+          className='arrow'
+          onClick={() => addItem({ variables: { item: cartItem } })}
+        >
+          &#10095;
+        </div>
+      </span>
+      <span className='price'>{price}</span>
+      <div
+        className='remove-button'
+        onClick={() => clearItem({ variables: { item: cartItem } })}
+      >
         &#10005;
-      </RemoveButtonContainer>
-    </CheckoutItemContainer>
+      </div>
+    </div>
   );
 };
 
-const mapDispatchToProps = (dispatch) => ({
-  addItem: (item) => dispatch(addItem(item)),
-  removeItem: (item) => dispatch(removeItem(item)),
-  clearItem: (item) => dispatch(clearItemFromCart(item)),
-});
-
-export default connect(null, mapDispatchToProps)(CheckoutItem);
+export default CheckoutItem;

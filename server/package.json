@@ -1,0 +1,19 @@
+{
+  "name": "crwn-clothing-prisma",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Yihua Zhang <yihuazhang2@gmail.com> (http://yihuazhang.com/)",
+  "license": "MIT",
+  "dependencies": {
+    "@prisma/cli": "^2.6.2",
+    "graphql-yoga": "^1.18.3",
+    "prisma-binding": "^2.3.16",
+    "prisma-client-lib": "^1.34.0"
+  }
+}

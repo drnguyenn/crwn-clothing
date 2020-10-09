@@ -1,29 +1,28 @@
 import React from 'react';
-import { connect } from 'react-redux';
-
-import { createStructuredSelector } from 'reselect';
-import { toggleCartHidden } from '../../redux/cart/cart.actions';
-import { selectCartItemsCount } from '../../redux/cart/cart.selectors';
+import { useMutation, useQuery } from 'react-apollo';
 
 import {
-  CartIconContainer,
-  ShoppingIconContainer,
-  ItemCountContainer,
-} from './cart-icon.styles';
+  GET_ITEM_COUNT,
+  TOGGLE_CART_HIDDEN
+} from '../../graphql/queries/cart.queries';
 
-const CartIcon = ({ toggleCartHidden, itemCount }) => (
-  <CartIconContainer>
-    <ShoppingIconContainer onClick={toggleCartHidden} />
-    <ItemCountContainer>{itemCount}</ItemCountContainer>
-  </CartIconContainer>
-);
+import { ReactComponent as ShoppingIcon } from '../../assets/shopping-bag.svg';
 
-const mapStateToProps = createStructuredSelector({
-  itemCount: selectCartItemsCount,
-});
+import './cart-icon.styles.scss';
 
-const mapDispatchToProps = (dispatch) => ({
-  toggleCartHidden: () => dispatch(toggleCartHidden()),
-});
+const CartIcon = () => {
+  const [toggleCartHidden] = useMutation(TOGGLE_CART_HIDDEN);
 
-export default connect(mapStateToProps, mapDispatchToProps)(CartIcon);
+  const {
+    data: { itemCount }
+  } = useQuery(GET_ITEM_COUNT);
+
+  return (
+    <div className='cart-icon' onClick={toggleCartHidden}>
+      <ShoppingIcon className='shopping-icon' />
+      <span className='item-count'>{itemCount}</span>
+    </div>
+  );
+};
+
+export default CartIcon;

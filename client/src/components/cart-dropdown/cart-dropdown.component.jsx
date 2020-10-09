@@ -1,44 +1,45 @@
 import React from 'react';
-import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-
-import { createStructuredSelector } from 'reselect';
-import { selectCartItems } from '../../redux/cart/cart.selectors';
-import { toggleCartHidden } from '../../redux/cart/cart.actions';
-
-import CartItem from '../cart-item/cart-item.component';
+import { useMutation, useQuery } from 'react-apollo';
 
 import {
-  CartDropdownContainer,
-  CartItemsContainer,
-  EmptyMessageContainer,
-  CartDropdownButton,
-} from './cart-dropdown.styles';
+  GET_CART_ITEMS,
+  TOGGLE_CART_HIDDEN
+} from '../../graphql/queries/cart.queries';
 
-const CartDropdown = ({ cartItems, history, dispatch }) => (
-  <CartDropdownContainer>
-    <CartItemsContainer>
-      {cartItems.length ? (
-        cartItems.map((cartItem) => (
-          <CartItem key={cartItem.id} item={cartItem} />
-        ))
-      ) : (
-        <EmptyMessageContainer>Your cart is empty</EmptyMessageContainer>
-      )}
-    </CartItemsContainer>
-    <CartDropdownButton
-      onClick={() => {
-        history.push('/checkout');
-        dispatch(toggleCartHidden());
-      }}
-    >
-      GO TO CHECKOUT
-    </CartDropdownButton>
-  </CartDropdownContainer>
-);
+import CustomButton from '../custom-button/custom-button.component';
+import CartItem from '../cart-item/cart-item.component';
 
-const mapStateToProps = createStructuredSelector({
-  cartItems: selectCartItems,
-});
+import './cart-dropdown.styles.scss';
 
-export default withRouter(connect(mapStateToProps)(CartDropdown));
+const CartDropdown = ({ history }) => {
+  const {
+    data: { cartItems }
+  } = useQuery(GET_CART_ITEMS);
+
+  const [toggleCartHidden] = useMutation(TOGGLE_CART_HIDDEN);
+
+  return (
+    <div className='cart-dropdown'>
+      <div className='cart-items'>
+        {cartItems.length ? (
+          cartItems.map(cartItem => (
+            <CartItem key={cartItem.id} item={cartItem} />
+          ))
+        ) : (
+          <span className='empty-message'>Your cart is empty</span>
+        )}
+      </div>
+      <CustomButton
+        onClick={() => {
+          history.push('/checkout');
+          toggleCartHidden();
+        }}
+      >
+        GO TO CHECKOUT
+      </CustomButton>
+    </div>
+  );
+};
+
+export default withRouter(CartDropdown);

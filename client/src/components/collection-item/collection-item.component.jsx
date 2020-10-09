@@ -1,36 +1,37 @@
 import React from 'react';
-import { connect } from 'react-redux';
+import { useMutation } from 'react-apollo';
 
-import { addItem } from '../../redux/cart/cart.actions';
+import { ADD_ITEM_TO_CART } from '../../graphql/queries/cart.queries';
 
-import {
-  CollectionItemContainer,
-  BackgroundImage,
-  CollectionFooterContainer,
-  NameContainer,
-  PriceContainer,
-  AddButton,
-} from './collection-item.styles';
+import CustomButton from '../custom-button/custom-button.component';
 
-const CollectionItem = ({ item, addItem }) => {
+import './collection-item.styles.scss';
+
+const CollectionItem = ({ item }) => {
   const { name, price, imageUrl } = item;
 
+  const [addItemToCart] = useMutation(ADD_ITEM_TO_CART);
+
   return (
-    <CollectionItemContainer>
-      <BackgroundImage className='image' imageUrl={imageUrl} />
-      <CollectionFooterContainer>
-        <NameContainer>{name}</NameContainer>
-        <PriceContainer>${price}</PriceContainer>
-      </CollectionFooterContainer>
-      <AddButton onClick={() => addItem(item)} inverted>
-        ADD TO CART
-      </AddButton>
-    </CollectionItemContainer>
+    <div className='collection-item'>
+      <div
+        className='image'
+        style={{
+          backgroundImage: `url(${imageUrl})`
+        }}
+      />
+      <div className='collection-footer'>
+        <span className='name'>{name}</span>
+        <span className='price'>{price}</span>
+      </div>
+      <CustomButton
+        onClick={() => addItemToCart({ variables: { item } })}
+        inverted
+      >
+        Add to cart
+      </CustomButton>
+    </div>
   );
 };
 
-const mapDispatchToProps = (dispatch) => ({
-  addItem: (item) => dispatch(addItem(item)),
-});
-
-export default connect(null, mapDispatchToProps)(CollectionItem);
+export default CollectionItem;
